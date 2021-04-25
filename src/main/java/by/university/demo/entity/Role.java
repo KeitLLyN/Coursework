@@ -1,4 +1,4 @@
-package by.university.demo.model;
+package by.university.demo.entity;
 
 import org.springframework.security.core.GrantedAuthority;
 
