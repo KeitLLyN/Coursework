@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Main Page</title>
+</head>
+<body>
+
+<div>
+	<h1 th:inline="text">Hello [[${#httpServletRequest.remoteUser}]]!</h1>
+	<p><b>Have a nice day.</b></p>
+	<form th:method="POST" th:action="@{/logout}">
+		<input type="submit" value="Sign Out"/>
+		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+	</form>
+	<span><a href="/user">See all users</a></span>
+</div>
+
+<div th:if="${param.error}">
+	<p><b> Some Error</b></p>
+</div>
+
+<div>
+	<form th:method="POST" th:action="@{/main}" th:object="${message}">
+		<label for="text">Сообщение</label>
+		<input id="text" type="text" th:field="*{text}"/>
+
+		<label for="tag">Тэг</label>
+		<input id="tag" type="text" th:field="*{tag}"/>
+
+		<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+		<button type="submit">Добавить</button>
+	</form>
+	<div>
+		<span><a href="/hash">Шифрование</a></span>
+	</div>
+</div>
+
+<div>Список сообщений</div>
+
+<div>
+	<form th:method="GET" th:action="@{/main}">
+		<label for="filter">Фильтр</label>
+		<input id="filter" type="text" name="filter"/>
+		<button type="submit">Найти</button>
+	</form>
+</div>
+
+
+<div>
+	<table>
+		<thead>
+		<tr>
+			<th>ID</th>
+			<th>Text</th>
+			<th>Tag</th>
+			<th>Author</th>
+			<th>Action</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr th:each="message : ${messages}">
+			<td th:text="${message.id}"></td>
+			<td th:text="${message.text}"></td>
+			<td th:text="${message.tag}"></td>
+			<td th:text="${message.authorName}"></td>
+			<td>
+				<form th:method="DELETE" th:action="@{/delete/{id}(id = ${message.id})}">
+					<input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+					<input type="hidden" name="user_id" th:value="${message.author.id}">
+					<button name="delete" type="submit">Удалить</button>
+				</form>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+</div>
+
+</body>
+</html>
