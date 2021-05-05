@@ -15,14 +15,14 @@ public class UserController {
 
     private final UserRepository USER_REPOSITORY;
 
-    public  UserController(UserRepository userRepository){
+    public UserController(UserRepository userRepository) {
         this.USER_REPOSITORY = userRepository;
     }
 
     @GetMapping
-    public String userList(Model model){
+    public String userList(Model model) {
         Iterable<User> users = USER_REPOSITORY.findAll();
-        model.addAttribute("users",users);
+        model.addAttribute("users", users);
         return "userList";
     }
 }
