@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 @Table(name = "message")
 public class Message {
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @NotBlank(message = "text couldn't be blank")
@@ -22,7 +22,7 @@ public class Message {
     @JoinColumn(name = "user_id")
     private User author;
 
-    public String getAuthorName(){
+    public String getAuthorName() {
         return author != null ? author.getUsername() : "<none>";
     }
 }
