@@ -55,7 +55,7 @@ public class MainController {
     }
 
     @ModelAttribute("message")
-    public Message message(){
+    public Message message() {
         return new Message();
     }
 }
