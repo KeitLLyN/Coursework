@@ -3,7 +3,7 @@ package by.university.demo.controllers;
 import by.university.demo.entity.Message;
 import by.university.demo.entity.Role;
 import by.university.demo.entity.User;
-import by.university.demo.repository.MessageRepository;
+import by.university.demo.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class MainController {
 
-    private final MessageRepository MESSAGE_REPOSITORY;
+    private final MessageService messageService;
 
     @Autowired
-    public MainController(MessageRepository messageRepository) {
-        this.MESSAGE_REPOSITORY = messageRepository;
+    public MainController(MessageService messageRepository) {
+        this.messageService = messageRepository;
     }
 
     @GetMapping("/main")
@@ -26,9 +26,9 @@ public class MainController {
                        Model model) {
         Iterable<Message> messages;
         if (filter != null && !filter.isEmpty()) {
-            messages = MESSAGE_REPOSITORY.findByTag(filter);
+            messages = messageService.findByTag(filter);
         } else {
-            messages = MESSAGE_REPOSITORY.findAll();
+            messages = messageService.findAll();
         }
         model.addAttribute("messages", messages);
         model.addAttribute("filter", filter);
@@ -40,7 +40,7 @@ public class MainController {
     public String add(@AuthenticationPrincipal User user,
                       @ModelAttribute Message message) {
         message.setAuthor(user);
-        MESSAGE_REPOSITORY.save(message);
+        messageService.save(message);
         return "redirect:/main";
     }
 
@@ -49,7 +49,7 @@ public class MainController {
                          @RequestParam Long user_id,
                          @AuthenticationPrincipal User user) {
         if (user_id.equals(user.getId()) || user.getRoles().contains(Role.ADMIN)) {
-            MESSAGE_REPOSITORY.deleteById(id);
+            messageService.deleteById(id);
         }
         return "redirect:/main";
     }
