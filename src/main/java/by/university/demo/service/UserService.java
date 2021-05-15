@@ -1,5 +1,6 @@
 package by.university.demo.service;
 
+import by.university.demo.dao.UserDao;
 import by.university.demo.entity.Role;
 import by.university.demo.entity.User;
 import by.university.demo.repository.UserRepository;
@@ -20,11 +21,7 @@ public class UserService implements UserDetailsService {
     private final UserRepository USER_REPOSITORY;
     private final PasswordEncoder PASSWORD_ENCODER;
 
-    @Autowired
-    public UserService(UserRepository USER_REPOSITORY, PasswordEncoder passwordEncoder) {
-        this.USER_REPOSITORY = USER_REPOSITORY;
-        this.PASSWORD_ENCODER = passwordEncoder;
-    }
+    private final UserDao USER_DAO;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
