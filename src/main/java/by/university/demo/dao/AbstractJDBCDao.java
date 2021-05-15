@@ -1,28 +1,116 @@
 package by.university.demo.dao;
 
-import by.university.demo.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import javax.persistence.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
-public class AbstractJDBCDao {
-    EntityManagerFactory em = Persistence.createEntityManagerFactory("by.university.demo.entity.User");
+public abstract class AbstractJDBCDao<T> {
+    @Autowired
+    protected ConnectionDao connectionDao;
 
-    public List<User> test(String id) {
-        EntityManager entityManager = getEntityManager();
-        entityManager.getTransaction().begin();
-        String jql = "FROM User WHERE id = '" + id + "'";
-        TypedQuery<User> query = entityManager.createQuery(jql, User.class);
-        List<User> resultList = query.getResultList();
-        entityManager.getTransaction().commit();
-        entityManager.close();
-        return resultList;
+    protected AbstractJDBCDao(ConnectionDao connectionDao) {
+        this.connectionDao = connectionDao;
     }
 
-    public EntityManager getEntityManager(){
-        return em.createEntityManager();
+    protected AbstractJDBCDao() {
     }
 
+    protected abstract String getSelectQuery();
+
+    protected abstract String getInsertQuery();
+
+    protected abstract String getUpdateQuery();
+
+    protected abstract String getDeleteQuery();
+
+    protected abstract List<T> parseResultSet(ResultSet resultSet);
+
+    protected abstract String statementUpdate(String sql, T object);
+
+    protected abstract String statementInsert(String sql, T object);
+
+    protected abstract String statementDelete(String sql, Long id);
+
+    public List<T> getByKeyValue(String key, String value) {
+        List<T> object = null;
+        String sql = getSelectQuery();
+        sql += String.format(" WHERE %s = '%s'", key, value);
+        try (Statement statement = connectionDao.getConnection().createStatement()) {
+            statement.execute(sql);
+            ResultSet resultSet = statement.getResultSet();
+            object = parseResultSet(resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            connectionDao.closeConnection();
+        }
+        return object;
+    }
+
+    public List<T> getByTwoValues(String key1, String key2, String v1, String v2){
+        List<T> object = new ArrayList<>();
+        String sql = getSelectQuery();
+        sql += String.format(" where %s = '%s' and %s = '%s'", key1,v1,key2,v2);
+        try (Statement statement = connectionDao.getConnection().createStatement()) {
+            ResultSet resultSet = statement.executeQuery(sql);
+            object = parseResultSet(resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            connectionDao.closeConnection();
+        }
+        return object;
+    }
+
+    public List<T> findAll() {
+        String sql = getSelectQuery();
+        List<T> objects = new ArrayList<>();
+        try (Statement statement = connectionDao.getConnection().createStatement()) {
+            ResultSet resultSet = statement.executeQuery(sql);
+            objects = parseResultSet(resultSet);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            connectionDao.closeConnection();
+        }
+        return objects;
+    }
+
+    public void update(T object) {
+        String sql = getUpdateQuery();
+        try (Statement statement = connectionDao.getConnection().createStatement()) {
+            sql = statementUpdate(sql, object);
+            statement.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            connectionDao.closeConnection();
+        }
+    }
+
+    public void insert(T object) {
+        String sql = getInsertQuery();
+        try (Statement statement = connectionDao.getConnection().createStatement()) {
+            sql = statementInsert(sql, object);
+            statement.executeUpdate(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            connectionDao.closeConnection();
+        }
+    }
+
+    public void deleteById(Long id){
+        String sql = getDeleteQuery();
+        try(Statement statement = connectionDao.getConnection().createStatement()) {
+            sql = statementDelete(sql, id);
+            statement.executeUpdate(sql);
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+    }
 }
