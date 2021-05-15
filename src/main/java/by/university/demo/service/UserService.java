@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.List;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -40,5 +41,11 @@ public class UserService implements UserDetailsService {
         USER_REPOSITORY.save(user);
 
         return true;
+    }
+
+    public List<User> findAll() {
+        List<User> users;
+        users = USER_DAO.findAll();
+        return users;
     }
 }
