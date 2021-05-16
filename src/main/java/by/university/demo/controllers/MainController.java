@@ -16,8 +16,8 @@ public class MainController {
     private final MessageService messageService;
 
     @Autowired
-    public MainController(MessageService messageRepository) {
-        this.messageService = messageRepository;
+    public MainController(MessageService messageService) {
+        this.messageService = messageService;
     }
 
     @GetMapping("/main")
