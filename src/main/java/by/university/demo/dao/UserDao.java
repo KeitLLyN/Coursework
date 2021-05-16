@@ -23,7 +23,7 @@ public class UserDao extends AbstractJDBCDao<User> {
 
     @Override
     protected String getInsertQuery() {
-        return "INSERT INTO users (email, password, username) values('%s', '%s', '%s')";
+        return "INSERT INTO users (email, password, username) values('%s', '%s', '%s');";
     }
 
     @Override
@@ -90,5 +90,19 @@ public class UserDao extends AbstractJDBCDao<User> {
             connectionDao.closeConnection();
         }
         return false;
+    }
+
+    public String generate(User user){
+        String sql = getInsertQuery();
+        try (Statement statement = connectionDao.getConnection().createStatement()) {
+            sql = statementInsert(sql, user);
+            statement.executeUpdate(sql);
+            return sql;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            connectionDao.closeConnection();
+        }
+        return "";
     }
 }
