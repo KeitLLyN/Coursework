@@ -58,4 +58,9 @@ public class MainController {
     public Message message() {
         return new Message();
     }
+
+    @ModelAttribute("admin")
+    public boolean getRole(@AuthenticationPrincipal User user){
+        return user.getRoles().contains(Role.ADMIN);
+    }
 }
